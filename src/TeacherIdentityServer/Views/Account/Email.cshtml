@@ -1,0 +1,16 @@
+﻿@model TeacherIdentityServer.Models.Account.EmailModel
+@{
+    ViewBag.Title = "Your email address";
+}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds-from-desktop">
+    <form asp-action="Email">
+      <govuk-input asp-for="Email" type="email">
+        <govuk-input-label class="govuk-label--xl" is-page-header="true" />
+      </govuk-input>
+
+      <govuk-button type="submit">Continue</govuk-button>
+    </form>
+  </div>
+</div>
