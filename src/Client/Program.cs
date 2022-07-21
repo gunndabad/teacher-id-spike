@@ -29,6 +29,7 @@ builder.Services
         options.Scope.Clear();
         options.Scope.Add("email");
         options.Scope.Add("openid");
+        options.Scope.Add("profile");
 
         options.SaveTokens = true;
     });

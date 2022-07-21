@@ -1,9 +1,10 @@
 ﻿@model ProfileModel
 
 <p class="govuk-body">
-  Hi @Model.Email
+  Hi @Model.FirstName @Model.LastName
 </p>
 
 <p class="govuk-body">
-  Your user ID is: @Model.UserId
+  Email: @Model.Email
+  User ID: @Model.UserId
 </p>

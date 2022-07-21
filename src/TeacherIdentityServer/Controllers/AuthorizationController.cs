@@ -84,8 +84,10 @@ public class AuthorizationController : Controller
                 });
         }
 
-        var userId = result.Principal.FindFirst("sub")!.Value;
-        var email = result.Principal.FindFirst("email")!.Value;
+        var userId = result.Principal.FindFirst(Claims.Subject)!.Value;
+        var email = result.Principal.FindFirst(Claims.Email)!.Value;
+        var givenName = result.Principal.FindFirst(Claims.GivenName)!.Value;
+        var familyName = result.Principal.FindFirst(Claims.FamilyName)!.Value;
 
         // Retrieve the application details from the database.
         var application = await _applicationManager.FindByClientIdAsync(request.ClientId!) ??
@@ -121,7 +123,9 @@ public class AuthorizationController : Controller
                 // Create the claims-based identity that will be used by OpenIddict to generate tokens.
                 var identity = new ClaimsIdentity(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme)
                     .AddClaim(Claims.Subject, userId)
-                    .AddClaim(Claims.Email, email);
+                    .AddClaim(Claims.Email, email)
+                    .AddClaim(Claims.GivenName, givenName)
+                    .AddClaim(Claims.FamilyName, familyName);
 
                 var principal = new ClaimsPrincipal(identity);
 
@@ -253,6 +257,8 @@ public class AuthorizationController : Controller
         switch (claim.Type)
         {
             case Claims.Name:
+            case Claims.GivenName:
+            case Claims.FamilyName:
                 yield return Destinations.AccessToken;
 
                 if (principal.HasScope(Scopes.Profile))

@@ -20,6 +20,8 @@ public class TeacherIdentityServerDbContext : DbContext
             entity.Property(u => u.EmailAddress).HasMaxLength(200).IsRequired();
             entity.HasIndex(u => u.EmailAddress).IsUnique();
             entity.Property(u => u.Trn).HasMaxLength(7).IsFixedLength();
+            entity.Property(u => u.FirstName).HasMaxLength(200).IsRequired();
+            entity.Property(u => u.LastName).HasMaxLength(200).IsRequired();
         });
     }
 }

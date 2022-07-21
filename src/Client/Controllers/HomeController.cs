@@ -16,7 +16,9 @@ public class HomeController : Controller
         var model = new ProfileModel()
         {
             Email = User.FindFirst("email")?.Value,
-            UserId = User.FindFirst("sub")?.Value
+            UserId = User.FindFirst("sub")?.Value,
+            FirstName = User.FindFirst("given_name")?.Value,
+            LastName = User.FindFirst("family_name")?.Value
         };
 
         return View(model);
