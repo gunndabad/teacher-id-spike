@@ -52,7 +52,8 @@ builder.Services.AddOpenIddict()
         options
             .AllowAuthorizationCodeFlow()
             .AllowImplicitFlow()
-            .AllowHybridFlow();
+            .AllowHybridFlow()
+            .AllowClientCredentialsFlow();
 
         options
             .AddDevelopmentEncryptionCertificate()
@@ -103,40 +104,73 @@ using (var scope = app.Services.CreateAsyncScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<TeacherIdentityServerDbContext>();
     await dbContext.Database.EnsureCreatedAsync();
 
-    var client = await manager.FindByClientIdAsync("client");
-    if (client is not null)
+    // Web client
     {
-        await manager.DeleteAsync(client);
+        var client = await manager.FindByClientIdAsync("client");
+        if (client is not null)
+        {
+            await manager.DeleteAsync(client);
+        }
+
+        await manager.CreateAsync(new OpenIddictApplicationDescriptor()
+        {
+            ClientId = "client",
+            ClientSecret = "super-secret",
+            //ConsentType = ConsentTypes.Explicit,
+            ConsentType = ConsentTypes.Implicit,
+            DisplayName = "Sample Client app",
+            RedirectUris =
+            {
+                new Uri("https://localhost:7261/oidc/callback")
+            },
+            Permissions =
+            {
+                Permissions.Endpoints.Authorization,
+                Permissions.Endpoints.Token,
+                Permissions.GrantTypes.AuthorizationCode,
+                Permissions.GrantTypes.Implicit,
+                Permissions.ResponseTypes.Code,
+                Permissions.ResponseTypes.IdToken,
+                Permissions.ResponseTypes.CodeIdToken,
+                Permissions.Scopes.Email,
+                Permissions.Scopes.Profile
+            },
+            Requirements =
+            {
+                //Requirements.Features.ProofKeyForCodeExchange
+            }
+        });
     }
 
-    await manager.CreateAsync(new OpenIddictApplicationDescriptor()
+    // Console app client
     {
-        ClientId = "client",
-        ClientSecret = "super-secret",
-        //ConsentType = ConsentTypes.Explicit,
-        ConsentType = ConsentTypes.Implicit,
-        DisplayName = "Sample Client app",
-        RedirectUris =
+        var client = await manager.FindByClientIdAsync("client2");
+        if (client is not null)
         {
-            new Uri("https://localhost:7261/oidc/callback")
-        },
-        Permissions =
-        {
-            Permissions.Endpoints.Authorization,
-            Permissions.Endpoints.Token,
-            Permissions.GrantTypes.AuthorizationCode,
-            Permissions.GrantTypes.Implicit,
-            Permissions.ResponseTypes.Code,
-            Permissions.ResponseTypes.IdToken,
-            Permissions.ResponseTypes.CodeIdToken,
-            Permissions.Scopes.Email,
-            Permissions.Scopes.Profile
-        },
-        Requirements =
-        {
-            //Requirements.Features.ProofKeyForCodeExchange
+            await manager.DeleteAsync(client);
         }
-    });
+
+        await manager.CreateAsync(new OpenIddictApplicationDescriptor()
+        {
+            ClientId = "client2",
+            ClientSecret = "another-big-secret",
+            //ConsentType = ConsentTypes.Explicit,
+            ConsentType = ConsentTypes.Implicit,
+            DisplayName = "Sample Client app 2",
+            Permissions =
+            {
+                Permissions.Endpoints.Token,
+                Permissions.GrantTypes.ClientCredentials,
+                Permissions.ResponseTypes.Token,
+                //Permissions.Scopes.Email,
+                //Permissions.Scopes.Profile,
+            },
+            Requirements =
+            {
+                //Requirements.Features.ProofKeyForCodeExchange
+            }
+        });
+    }
 }
 
 app.Run();
