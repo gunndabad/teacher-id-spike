@@ -38,6 +38,9 @@ public class AuthorizationController : Controller
         var request = HttpContext.GetOpenIddictServerRequest() ??
             throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
 
+        // Stash the request in Session so we can retrieve it later on from different endpoints.
+        HttpContext.Session.SetString(SessionKeys.OpenIddictRequest, request.Serialize());
+
         // Try to retrieve the user principal stored in the authentication cookie and redirect
         // the user agent to the login page (or to an external provider) in the following cases:
         //
