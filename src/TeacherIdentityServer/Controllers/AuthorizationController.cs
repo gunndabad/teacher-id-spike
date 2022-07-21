@@ -173,6 +173,29 @@ public class AuthorizationController : Controller
         }
     }
 
+    [HttpPost("~/connect/token"), Produces("application/json")]
+    public async Task<IActionResult> Exchange()
+    {
+        var request = HttpContext.GetOpenIddictServerRequest() ??
+            throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
+
+        if (request.IsAuthorizationCodeGrantType() || request.IsRefreshTokenGrantType())
+        {
+            // Retrieve the claims principal stored in the authorization code/refresh token.
+            var principal = (await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme)).Principal!;
+
+            foreach (var claim in principal.Claims)
+            {
+                claim.SetDestinations(GetDestinations(claim, principal));
+            }
+
+            // Returning a SignInResult will ask OpenIddict to issue the appropriate access/identity tokens.
+            return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        }
+
+        throw new InvalidOperationException("The specified grant type is not supported.");
+    }
+
     private static IEnumerable<string> GetDestinations(Claim claim, ClaimsPrincipal principal)
     {
         // Note: by default, claims are NOT automatically included in the access and identity tokens.

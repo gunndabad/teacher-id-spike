@@ -23,7 +23,7 @@ builder.Services
 
         options.ClientId = "client";
         options.ClientSecret = "super-secret";
-        options.ResponseType = "id_token";
+        options.ResponseType = "code id_token";
         options.CallbackPath = new PathString("/oidc/callback");
 
         options.Scope.Clear();
