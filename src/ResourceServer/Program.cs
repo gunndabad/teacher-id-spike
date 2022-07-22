@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using ResourceServer.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,17 @@ builder.Services.AddAuthentication(defaultScheme: JwtBearerDefaults.Authenticati
         options.TokenValidationParameters.ValidateAudience = false;
         options.MapInboundClaims = false;
     });
+
+builder.Services.AddSingleton<IAuthorizationHandler, RequireScopeAuthorizationHandler>();
+
+builder.Services.AddAuthorization(options =>
+{
+    var policyBuilder = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser();
+    policyBuilder.Requirements.Add(new ScopeAuthorizationRequirement("custom_scope"));
+
+    options.DefaultPolicy = policyBuilder.Build();
+});
 
 var app = builder.Build();
 

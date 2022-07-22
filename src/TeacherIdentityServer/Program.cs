@@ -1,6 +1,7 @@
 using GovUk.Frontend.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
+using TeacherIdentityServer;
 using TeacherIdentityServer.Models;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
@@ -67,6 +68,8 @@ builder.Services.AddOpenIddict()
             .EnableStatusCodePagesIntegration();
 
         options.DisableAccessTokenEncryption();
+
+        options.RegisterScopes(CustomScopes.CustomScope);
     });
 // TODO Validation?
 
@@ -135,7 +138,8 @@ using (var scope = app.Services.CreateAsyncScope())
                 Permissions.ResponseTypes.IdToken,
                 Permissions.ResponseTypes.CodeIdToken,
                 Permissions.Scopes.Email,
-                Permissions.Scopes.Profile
+                Permissions.Scopes.Profile,
+                $"scp:{CustomScopes.CustomScope}"
             },
             Requirements =
             {
