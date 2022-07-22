@@ -32,6 +32,13 @@ builder.Services
         options.Scope.Add("profile");
 
         options.SaveTokens = true;
+
+        // Log the access token to the console for debugging
+        options.Events.OnTokenResponseReceived = ctx =>
+        {
+            Console.WriteLine(ctx.TokenEndpointResponse.AccessToken);
+            return Task.CompletedTask;
+        };
     });
 
 var app = builder.Build();

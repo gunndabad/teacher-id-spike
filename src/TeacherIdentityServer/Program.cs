@@ -65,6 +65,8 @@ builder.Services.AddOpenIddict()
             .EnableTokenEndpointPassthrough()
             .EnableUserinfoEndpointPassthrough()
             .EnableStatusCodePagesIntegration();
+
+        options.DisableAccessTokenEncryption();
     });
 // TODO Validation?
 
